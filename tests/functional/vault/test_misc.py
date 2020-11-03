@@ -15,7 +15,7 @@ def test_sweep(gov, vault, rando, token, other_token):
     assert token.address == vault.token()
     assert token.balanceOf(vault) > 0
     with brownie.reverts():
-        vault.sweep(token, {"from": gov})
+        vault.sweep(token, token.balanceOf(vault), {"from": gov})
 
     # But any other random token works
     assert other_token.address != vault.token()
@@ -23,10 +23,10 @@ def test_sweep(gov, vault, rando, token, other_token):
     assert other_token.balanceOf(gov) == 0
     # Not any random person can do this
     with brownie.reverts():
-        vault.sweep(other_token, {"from": rando})
+        vault.sweep(other_token, other_token.balanceOf(vault), {"from": rando})
 
     before = other_token.balanceOf(vault)
-    vault.sweep(other_token, {"from": gov})
+    vault.sweep(other_token, other_token.balanceOf(vault), {"from": gov})
     assert other_token.balanceOf(vault) == 0
     assert other_token.balanceOf(gov) == before
     assert other_token.balanceOf(rando) == 0
@@ -76,7 +76,7 @@ def test_reject_ether(gov, vault):
         ),
         ("revokeStrategy", ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"]),
         ("report", [1]),
-        ("sweep", ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"]),
+        ("sweep", ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", 1]),
     ]:
         with brownie.reverts("Cannot send ether to nonpayable function"):
             # NOTE: gov can do anything
