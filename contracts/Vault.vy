@@ -1260,7 +1260,7 @@ def erc20_safe_transfer(_token: address, _to: address, _value: uint256):
 
 
 @external
-def sweep(_token: address):
+def sweep(_token: address, _value: uint256):
     """
     @notice
         Removes tokens from this Vault that are not the type of token managed
@@ -1274,8 +1274,9 @@ def sweep(_token: address):
 
         This may only be called by governance.
     @param _token The token to transfer out of this vault.
+    @param _value The quantity or tokenId to transfer out.
     """
     assert msg.sender == self.governance
     # Can't be used to steal what this Vault is protecting
     assert _token != self.token.address
-    self.erc20_safe_transfer(_token, self.governance, ERC20(_token).balanceOf(self))
+    self.erc20_safe_transfer(_token, self.governance, _value)
